@@ -1,0 +1,64 @@
+<%- include('./inc/header.ejs', {
+    title: title
+})  %>
+    <div class="row m-5">
+        <div class="col-12 col-md-6 offset-md-3">
+            <form id="loginForm" class="login-form" novalidate autocomplete="off">
+                <h6 class="d-none" id="error-msg"></h6>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input class="form-control" id="username" type="text" name="username"/>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input class="form-control" id="password" type="password" name="password"/>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="tryLogin()">Login</button>
+            </form>
+
+        </div>
+    </div>
+<style>
+    input{
+        width: 100%;
+        max-width: 300px;
+        margin-bottom: 20px;
+    }
+    #error-msg{
+        color: red;
+        background-color: #FAC5C5FF;
+        padding: 8px;
+        border-radius: 5px;
+    }
+</style>
+<script>
+    function tryLogin(){
+        document.getElementById('error-msg').classList.add('d-none');
+        let user = document.getElementById('username').value;
+        let pass = document.getElementById('password').value;
+
+        fetch('http://localhost:3000/login',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: user,
+                password: pass
+            })
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            console.log(data);
+            if(data.status === 200){
+                window.location.replace('http://localhost:3000/');
+            }else{
+                document.getElementById('error-msg').classList.remove('d-none');
+                document.getElementById('error-msg').textContent = data.message;
+            }
+        }).catch(err => {
+            console.log(err.message);
+        });
+    }
+</script>
+<%- include('./inc/footer.ejs')  %>
