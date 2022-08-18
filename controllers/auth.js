@@ -33,3 +33,36 @@ exports.postLogin = (req, res) => {
         });
     }
 }
+
+exports.getSignUp = (req, res)=>{
+    res.render('signup',{
+        title: 'Sign Up'
+    });
+}
+
+exports.postSignUp = (req, res) =>{
+    let data = req.body;
+    try{
+        const user = new User(data.username, data.password);
+        if(!user.save()){
+            res.status(401);
+            res.statusMessage = 'An error occurred';
+            res.json({
+                status: 401,
+                message: 'An error occurred'
+            });
+            return;
+        }
+        res.json({
+            status: 200,
+            message: 'User created successfully!'
+        });
+    }catch(err){
+        res.status(401);
+        res.statusMessage = err.message;
+        res.json({
+            status: 401,
+            message: err.message
+        });
+    }
+}
