@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const db = require('../utils/db');
 
 const readFile = ()=>{
     return JSON.parse(fs.readFileSync(path.join(__dirname,'../','data.json')));
@@ -10,27 +11,25 @@ module.exports = class User{
         this.user = username;
         this.pass = password;
     }
-    save(){
+    async save(){
+        if(this.user.length < 3){
+            throw new Error('Username less than 3 characters!');
+        }
         if(this.pass.length < 5){
-            throw new Error('Password length less than 5 characters');
+            throw new Error('Password less than 5 characters!');
         }
-        let users = readFile();
-        let check = users.find(u=>{
-            return u.username.toLowerCase() === this.user.toLowerCase();
-        });
-        if(typeof(check) !== 'undefined'){
-            throw new Error('Username already exist!');
+        let query = await db.execute('SELECT * FROM users WHERE name = ?',[this.user]);
+        let users = query[0];
+        if(users.length > 0){
+            console.log('err');
+            throw new Error('User already exists');
         }
-        let existingUsers = readFile();
-        existingUsers.push({
-            username: this.user,
-            pass: this.pass
-        });
-        fs.writeFileSync(path.join(__dirname,'../','data.json'),JSON.stringify(existingUsers));
+        await db.execute('INSERT INTO users (name,pass) VALUES (?,?)',[this.user,this.pass]);
         return true;
     }
-    static fetchAll(){
-        return readFile();
+    static async fetchAll(){
+         let query = await db.execute('SELECT * FROM users');
+         return query[0];
     }
     static fetchByUsername(username){
         let users = readFile();

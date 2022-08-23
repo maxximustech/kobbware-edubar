@@ -42,27 +42,20 @@ exports.getSignUp = (req, res)=>{
 
 exports.postSignUp = (req, res) =>{
     let data = req.body;
-    try{
-        const user = new User(data.username, data.password);
-        if(!user.save()){
+    const user = new User(data.username, data.password);
+    user.save()
+        .then(response=>{
+            res.json({
+                status: 200,
+                message: 'User created successfully!'
+            });
+        })
+        .catch(err=>{
             res.status(401);
-            res.statusMessage = 'An error occurred';
+            res.statusMessage = err.message;
             res.json({
                 status: 401,
-                message: 'An error occurred'
+                message: err.message
             });
-            return;
-        }
-        res.json({
-            status: 200,
-            message: 'User created successfully!'
         });
-    }catch(err){
-        res.status(401);
-        res.statusMessage = err.message;
-        res.json({
-            status: 401,
-            message: err.message
-        });
-    }
 }

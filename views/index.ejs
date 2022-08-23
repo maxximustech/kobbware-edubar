@@ -4,9 +4,9 @@ title: title
     <div class="row m-5">
         <% for(let i = 0; i < users.length; i++){ %>
             <div class="col-12 col-md-6 col-lg-4 p-4">
-                <h4>Name: <%= users[i].username %></h4>
+                <h4>Name: <%= users[i].name %></h4>
                 <h4>Password: <%= users[i].pass %></h4>
-                <a class="btn btn-danger" href="/user/delete/<%= users[i].username %>">Delete</a>
+                <a class="btn btn-danger" href="/user/delete/<%= users[i].name %>">Delete</a>
             </div>
         <% } %>
     </div>
