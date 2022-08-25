@@ -14,6 +14,10 @@ title: title
                 <label for="password">Password</label>
                 <input class="form-control" id="password" type="password" name="password" value="<%= user.pass %>"/>
             </div>
+            <div class="form-group">
+                <label for="image">Image Url</label>
+                <input class="form-control" id="image" type="text" name="imageUrl" value="<%= user.imageUrl %>"/>
+            </div>
             <button type="button" class="btn btn-primary" onclick="tryEdit()">Update</button>
         </form>
 
@@ -37,6 +41,7 @@ title: title
         document.getElementById('error-msg').classList.add('d-none');
         let user = document.getElementById('username').value;
         let pass = document.getElementById('password').value;
+        let image = document.getElementById('image').value;
 
         fetch(`http://localhost:3000/user/<%= user.id %>/edit`,{
             method: 'POST',
@@ -47,7 +52,8 @@ title: title
                 user: {
                     id: '<%= user.id %>',
                     name: user,
-                    pass: pass
+                    pass: pass,
+                    imageUrl: image
                 }
             })
         }).then(response => {

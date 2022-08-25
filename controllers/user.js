@@ -3,7 +3,11 @@ const {response} = require("express");
 
 
 exports.postDeleteUser = (req, res) => {
-    User.deleteOne(req.params.id).then(response => {
+    User.destroy({
+        where: {
+            id: req.params.id
+        }
+    }).then(response => {
         res.redirect('/');
     }).catch(err => {
         res.status(500).render('500',{
@@ -14,7 +18,13 @@ exports.postDeleteUser = (req, res) => {
 }
 
 exports.getEditUser = (req, res) => {
-    User.fetchById(req.params.id).then(user => {
+    User.findByPk(req.params.id).then(user => {
+        if(user == null){
+            res.status(404).render('404',{
+                title: 'Page Not Found',
+                message: 'The user with the ID does not exist'
+            })
+        }
         res.render('user/edit', {
             title: 'Edit User - '+user.name,
             'user': user
@@ -29,7 +39,15 @@ exports.getEditUser = (req, res) => {
 }
 
 exports.postEditUser = (req, res) => {
-    User.update(req.body.user).then(response => {
+    User.update({
+        name: req.body.user.name,
+        pass: req.body.user.pass,
+        imageUrl: req.body.user.imageUrl
+    },{
+        where: {
+            id: req.body.user.id
+        }
+    }).then(response => {
         res.status(200).json({
             status: 200,
             message: 'User details updated successfully'

@@ -13,6 +13,10 @@ title: title
                 <label for="password">Password</label>
                 <input class="form-control" id="password" type="password" name="password"/>
             </div>
+            <div class="form-group">
+                <label for="image">Image</label>
+                <input class="form-control" id="image" type="text" name="imageUrl"/>
+            </div>
             <button type="button" class="btn btn-primary" onclick="trySignUp()">Sign Up</button>
         </form>
 
@@ -36,6 +40,7 @@ title: title
         document.getElementById('error-msg').classList.add('d-none');
         let user = document.getElementById('username').value;
         let pass = document.getElementById('password').value;
+        let image = document.getElementById('image').value;
 
         fetch('http://localhost:3000/signup',{
             method: 'POST',
@@ -44,7 +49,8 @@ title: title
             },
             body: JSON.stringify({
                 username: user,
-                password: pass
+                password: pass,
+                imageUrl: image
             })
         }).then(response => {
             console.log(response);

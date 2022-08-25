@@ -5,10 +5,10 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 
 const db = require('./utils/db');
+const User = require('./models/user');
 
 const app = express();
 
-const User = require('./models/user');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 
@@ -23,16 +23,27 @@ app.use(authRoutes);
 app.use(userRoutes);
 
 app.get('/', (req,res)=>{
-    User.fetchAll().then(result=>{
+    User.findAll()
+        .then(result=>{
         res.render('index',{
             title: 'Welcome to Edubar',
             message: 'Hello World',
             users: result
         });
     }).catch(err=>{
-        console.log(err);
+        res.status(500).render('500',{
+            title: 'Internal Server Error',
+            message: err.message
+        });
     });
+
 });
 
 const server = http.createServer(app);
-server.listen(3000);
+
+db.sync().then(response => {
+    console.log(response);
+    server.listen(3000);
+}).catch(err => {
+    console.log(err);
+});

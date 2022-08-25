@@ -4,6 +4,7 @@ title: title
     <div class="row m-5">
         <% for(let i = 0; i < users.length; i++){ %>
             <div class="col-12 col-md-6 col-lg-4 p-4">
+                <img src="<%= users[i].imageUrl %>" width="100%"/>
                 <h4>Name: <%= users[i].name %></h4>
                 <h4>Password: <%= users[i].pass %></h4>
                 <a class="btn btn-primary" href="/user/<%= users[i].id %>/edit">Edit</a>
