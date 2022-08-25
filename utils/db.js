@@ -6,5 +6,5 @@ const db = mysql.createPool({
     database: 'edubar',
     password: 'Maxximus2013'
 });
-
+// URI - dialet://user:pass@example.com:5432/dbname
 module.exports = db.promise();

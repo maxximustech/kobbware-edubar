@@ -1,0 +1,10 @@
+<%- include('./inc/header.ejs', {
+title: title
+})  %>
+<div class="container">
+    <h1>Internal Server Error</h1>
+    <% if(message){ %>
+        <h6><%= message %></h6>
+    <% } %>
+</div>
+<%- include('./inc/footer.ejs')  %>

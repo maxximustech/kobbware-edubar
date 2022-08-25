@@ -1,23 +1,24 @@
-<%- include('./inc/header.ejs', {
-    title: title
+<%- include('../inc/header.ejs', {
+title: title
 })  %>
-    <div class="row m-5">
-        <div class="col-12 col-md-6 offset-md-3">
-            <form id="loginForm" class="login-form" novalidate autocomplete="off">
-                <h6 class="d-none" id="error-msg"></h6>
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input class="form-control" id="username" type="text" name="username"/>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input class="form-control" id="password" type="password" name="password"/>
-                </div>
-                <button type="button" class="btn btn-primary" onclick="tryLogin()">Login</button>
-            </form>
+<div class="row m-5">
+    <div class="col-12 col-md-6 offset-md-3">
+        <form id="editForm" class="login-form" novalidate autocomplete="off">
+            <h2>Edit User</h2>
+            <h6 class="d-none" id="error-msg"></h6>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input class="form-control" id="username" type="text" name="username" value="<%= user.name %>"/>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input class="form-control" id="password" type="password" name="password" value="<%= user.pass %>"/>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="tryEdit()">Update</button>
+        </form>
 
-        </div>
     </div>
+</div>
 <style>
     input{
         width: 100%;
@@ -32,19 +33,22 @@
     }
 </style>
 <script>
-    function tryLogin(){
+    function tryEdit(){
         document.getElementById('error-msg').classList.add('d-none');
         let user = document.getElementById('username').value;
         let pass = document.getElementById('password').value;
 
-        fetch('http://localhost:3000/login',{
+        fetch(`http://localhost:3000/user/<%= user.id %>/edit`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                username: user,
-                password: pass
+                user: {
+                    id: '<%= user.id %>',
+                    name: user,
+                    pass: pass
+                }
             })
         }).then(response => {
             return response.json();
@@ -56,7 +60,7 @@
                 document.getElementById('error-msg').style.color = 'green';
                 document.getElementById('error-msg').textContent = data.message;
                 setTimeout(()=>{
-                    window.location.replace('http://localhost:3000');
+                    window.location.reload();
                 }, 3000);
             }else{
                 document.getElementById('error-msg').classList.remove('d-none');
@@ -67,4 +71,4 @@
         });
     }
 </script>
-<%- include('./inc/footer.ejs')  %>
+<%- include('../inc/footer.ejs')  %>

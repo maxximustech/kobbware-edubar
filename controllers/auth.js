@@ -9,29 +9,20 @@ module.exports.getLogin = (req, res)=>{
 }
 exports.postLogin = (req, res) => {
     let data = req.body;
-    try{
-        user = new User(data.username, data.password);
-        if(!user.verify()){
-            res.status(401);
-            res.statusMessage = 'Username or password does not exist';
-            res.json({
-                status: 401,
-                message: 'Username or password does not exist'
-            });
-            return;
-        }
+    let user = new User(data.username, data.password);
+    user.verify().then(response => {
         res.status(200).json({
             status: 200,
             message: 'User logged in successfully'
         });
-    }catch(err){
+    }).catch(err => {
         res.status(401);
         res.statusMessage = err.message;
         res.json({
             status: 401,
             message: err.message
         });
-    }
+    });
 }
 
 exports.getSignUp = (req, res)=>{
