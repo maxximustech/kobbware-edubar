@@ -1,6 +1,10 @@
 const User = require("../models/user");
 
 module.exports.getLogin = (req, res)=>{
+    if(typeof req.session.username !== 'undefined' && typeof req.session.password !== 'undefined'){
+        res.redirect('/');
+        return;
+    }
     res.render('login',{
         title: 'Welcome to Edubar',
         message: '<h1>Hello World</h1>'
@@ -23,6 +27,10 @@ exports.postLogin = (req, res) => {
             });
             return;
         }
+        let user_session = req.session;
+        user_session.username = req.body.username
+        user_session.password = req.body.password
+        console.log(user_session);
         res.status(200).json({
             status: 200,
             message: 'User logged in successfully'
@@ -56,5 +64,11 @@ exports.postSignUp = (req, res) =>{
             status: 500,
             message: err.message
         });
+    });
+}
+
+exports.getLogout = (req, res) => {
+    req.session.destroy((err)=>{
+        res.redirect('/login');
     });
 }

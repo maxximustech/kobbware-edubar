@@ -1,5 +1,6 @@
 <%- include('./inc/header.ejs', {
-title: title
+title: title,
+isLoggedIn: isLoggedIn
 })  %>
     <div class="row m-5">
         <% for(let i = 0; i < users.length; i++){ %>
