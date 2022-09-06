@@ -18,6 +18,18 @@ isLoggedIn: false
                 <label for="image">Image</label>
                 <input class="form-control" id="image" type="text" name="imageUrl"/>
             </div>
+            <div class="form-group mb-4">
+                <label for="userRole">Role</label>
+                <select id="userRole" class="form-control">
+                    <%
+                        for(let i = 0; i < roles.length; i++){
+                    %>
+                        <option><%= roles[i].name %></option>
+                    <%
+                        }
+                    %>
+                </select>
+            </div>
             <button type="button" class="btn btn-primary" onclick="trySignUp()">Sign Up</button>
         </form>
 
@@ -42,6 +54,7 @@ isLoggedIn: false
         let user = document.getElementById('username').value;
         let pass = document.getElementById('password').value;
         let image = document.getElementById('image').value;
+        let userRole = document.getElementById('userRole').value
 
         fetch('http://localhost:3000/signup',{
             method: 'POST',
@@ -51,7 +64,8 @@ isLoggedIn: false
             body: JSON.stringify({
                 username: user,
                 password: pass,
-                imageUrl: image
+                imageUrl: image,
+                user_role: userRole
             })
         }).then(response => {
             console.log(response);

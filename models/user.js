@@ -16,7 +16,8 @@ const User = db.define('User',{
         type: DataTypes.STRING,
         allowNull: false
     },
-    imageUrl: DataTypes.TEXT
+    imageUrl: DataTypes.TEXT,
+    user_role: DataTypes.STRING
 });
 
 module.exports = User;

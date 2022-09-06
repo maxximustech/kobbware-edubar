@@ -8,15 +8,27 @@ title: title
             <h6 class="d-none" id="error-msg"></h6>
             <div class="form-group">
                 <label for="username">Username</label>
-                <input class="form-control" id="username" type="text" name="username" value="<%= user.name %>"/>
+                <input class="form-control" id="username" type="text" name="username" value="<%= editUser.name %>"/>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input class="form-control" id="password" type="password" name="password" value="<%= user.pass %>"/>
+                <input class="form-control" id="password" type="password" name="password" value="<%= editUser.pass %>"/>
             </div>
             <div class="form-group">
                 <label for="image">Image Url</label>
-                <input class="form-control" id="image" type="text" name="imageUrl" value="<%= user.imageUrl %>"/>
+                <input class="form-control" id="image" type="text" name="imageUrl" value="<%= editUser.imageUrl %>"/>
+            </div>
+            <div class="form-group mb-4">
+                <label for="userRole">Role</label>
+                <select id="userRole" class="form-control">
+                    <%
+                    for(let i = 0; i < roles.length; i++){
+                    %>
+                        <option <%= editUser.user_role === roles[i].name ? 'selected':'' %>><%= roles[i].name %></option>
+                    <%
+                    }
+                    %>
+                </select>
             </div>
             <button type="button" class="btn btn-primary" onclick="tryEdit()">Update</button>
         </form>
@@ -42,18 +54,20 @@ title: title
         let user = document.getElementById('username').value;
         let pass = document.getElementById('password').value;
         let image = document.getElementById('image').value;
+        let userRole = document.getElementById('userRole').value
 
-        fetch(`http://localhost:3000/user/<%= user.id %>/edit`,{
+        fetch(`http://localhost:3000/user/<%= editUser.id %>/edit`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 user: {
-                    id: '<%= user.id %>',
+                    id: '<%= editUser.id %>',
                     name: user,
                     pass: pass,
-                    imageUrl: image
+                    imageUrl: image,
+                    user_role: userRole
                 }
             })
         }).then(response => {

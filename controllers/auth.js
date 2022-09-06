@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const { userRoles } = require("../utils/constant");
 
 module.exports.getLogin = (req, res)=>{
     if(typeof req.session.username !== 'undefined' && typeof req.session.password !== 'undefined'){
@@ -47,13 +48,38 @@ exports.postLogin = (req, res) => {
 
 exports.getSignUp = (req, res)=>{
     res.render('signup',{
-        title: 'Sign Up'
+        title: 'Sign Up',
+        roles: userRoles
     });
 }
 
 exports.postSignUp = (req, res) =>{
     let data = req.body;
-    User.create({name: data.username, pass: data.password, imageUrl: data.imageUrl}).then(user=>{
+    let roleIndex = userRoles.findIndex(role => {
+        return data.user_role === role.name;
+    });
+    if(data.username.length < 3){
+        res.status(422).json({
+            status: 422,
+            message: 'Username is too short'
+        });
+        return;
+    }
+    if(data.password.length < 5){
+        res.status(422).json({
+            status: 422,
+            message: 'Password is too short'
+        });
+        return;
+    }
+    if(roleIndex < 0){
+        res.status(422).json({
+            status: 422,
+            message: 'User role is not valid'
+        });
+        return;
+    }
+    User.create({name: data.username, pass: data.password, imageUrl: data.imageUrl, user_role: data.user_role}).then(user=>{
         res.json({
             status: 200,
             message: 'User created successfully',

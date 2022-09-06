@@ -3,13 +3,35 @@ title: title,
 isLoggedIn: isLoggedIn
 })  %>
     <div class="row m-5">
-        <% for(let i = 0; i < users.length; i++){ %>
+        <% for(let i = 0; i < users.length; i++){
+            if(user.id === users[i].id){
+                continue;
+            }
+            if(!userRole.canAccessOwner && users[i].user_role === 'Owner'){
+                continue;
+            }
+            if(!userRole.canAccessAdmin && users[i].user_role === 'Admin'){
+                continue;
+            }
+            if(!userRole.canAccessTeacher && users[i].user_role === 'Teacher'){
+                continue;
+            }
+            if(!userRole.canAccessStudent && users[i].user_role === 'Student'){
+                continue;
+            }
+        %>
             <div class="col-12 col-md-6 col-lg-4 p-4">
                 <img src="<%= users[i].imageUrl %>" width="100%"/>
                 <h4>Name: <%= users[i].name %></h4>
-                <h4>Password: <%= users[i].pass %></h4>
+                <h4>Role: <%= users[i].user_role %></h4>
+                <%
+                    if(user.user_role !== 'Student'){
+                %>
                 <a class="btn btn-primary" href="/user/<%= users[i].id %>/edit">Edit</a>
                 <a onclick="return confirm('Do you want to delete this user?');" class="btn btn-danger" href="/user/<%= users[i].id %>/delete">Delete</a>
+                <%
+                    }
+                %>
             </div>
         <% } %>
     </div>

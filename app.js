@@ -14,6 +14,7 @@ const app = express();
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const { userRoles } = require('./utils/constant');
 
 
 app.set('view engine', 'ejs');
@@ -37,13 +38,9 @@ app.use(session({
 
 app.use(express.static('public'));
 
-app.use(authRoutes);
-app.use(userRoutes);
-
-app.get('/', (req,res)=>{
-    console.log(req.session);
-    if(typeof req.session.username === 'undefined' || typeof req.session.password === 'undefined'){
-        res.redirect('/login');
+app.use((req, res, next)=>{
+    if(typeof req.session.username === 'undefined' ||  typeof req.session.password === 'undefined'){
+        next();
         return;
     }
     User.findOne({
@@ -53,27 +50,40 @@ app.get('/', (req,res)=>{
         }
     }).then(user => {
         if(user == null){
-            res.session.destroy();
-            res.redirect('/login');
+            req.session.destroy();
             return;
         }
-        return User.findAll()
-            .then(result=>{
-                res.cookie('curtime',Date.now());
-                res.render('index',{
-                    title: 'Welcome to Edubar',
-                    message: 'Hello World',
-                    users: result,
-                    isLoggedIn: true
-                });
-            })
-    }).catch(err=>{
+        req.session.user = user;
+        next();
+    });
+});
+
+app.use(authRoutes);
+app.use(userRoutes);
+
+app.get('/', (req,res)=>{
+    if(typeof req.session.user === 'undefined'){
+        res.redirect('/login');
+        return;
+    }
+    return User.findAll()
+        .then(result=>{
+            res.render('index',{
+                title: 'Welcome to Edubar',
+                message: 'Hello World',
+                users: result,
+                isLoggedIn: true,
+                user: req.session.user,
+                userRole: userRoles.find(role => {
+                    return req.session.user.user_role === role.name;
+                })
+            });
+        }).catch(err=>{
         res.status(500).render('500',{
             title: 'Internal Server Error',
             message: err.message
         });
     });
-
 });
 
 const server = http.createServer(app);
