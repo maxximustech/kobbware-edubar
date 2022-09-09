@@ -1,11 +1,13 @@
 const express = require('express');
 const http = require('http');
+const createError = require('http-errors');
 const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const sequelizeStore = require('connect-session-sequelize')(session.Store);
 const fs = require('fs');
+const cors = require('cors');
 
 const db = require('./utils/db');
 const User = require('./models/user');
@@ -14,18 +16,16 @@ const app = express();
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const utilRoutes = require('./routes/utils');
+
 const { userRoles } = require('./utils/constant');
 
-
-app.set('view engine', 'ejs');
-app.set('views', './views');
 app.use(express.json())
 app.use(cookieParser());
-
+/*
 const myStore = new sequelizeStore({
     db: db
 });
-
 app.use(session({
     secret: 'Anthony',
     cookie: {
@@ -35,11 +35,14 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
+ */
 
-app.use(express.static('public'));
+app.use(cors({
+    origin: '*'
+}));
 
 app.use((req, res, next)=>{
-    if(typeof req.session.username === 'undefined' ||  typeof req.session.password === 'undefined'){
+    /*if(typeof req.session.username === 'undefined' ||  typeof req.session.password === 'undefined'){
         next();
         return;
     }
@@ -56,12 +59,17 @@ app.use((req, res, next)=>{
         req.session.user = user;
         next();
     });
+
+     */
+    next();
 });
 
 app.use(authRoutes);
-app.use(userRoutes);
+//app.use(userRoutes);
+app.use(utilRoutes);
 
-app.get('/', (req,res)=>{
+app.get('/', (req,res, next)=>{
+/*
     if(typeof req.session.user === 'undefined'){
         res.redirect('/login');
         return;
@@ -84,12 +92,28 @@ app.get('/', (req,res)=>{
             message: err.message
         });
     });
+
+ */
+});
+
+app.use((err, req, res, next)=>{
+    res.status(err.statusCode);
+    res.statusMessage = err.message;
+    const errTitles = {
+        '404': 'Page Not Found',
+        '500': 'Internal Server Error',
+        '401': 'Not Unathourized'
+    }
+    res.json({
+        title: errTitles[err.statusCode] || errTitles['500'] ,
+        message: err.message
+    });
 });
 
 const server = http.createServer(app);
 db.sync().then(response => {
     //console.log(response);
-    myStore.sync();
+    //myStore.sync();
     server.listen(3000);
 }).catch(err => {
     console.log(err);

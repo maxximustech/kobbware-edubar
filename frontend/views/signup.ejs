@@ -72,19 +72,21 @@ isLoggedIn: false
             return response.json();
         }).then(data => {
             console.log(data);
-            if(data.status === 200){
+            if(data.status === 201){
                 document.getElementById('error-msg').classList.remove('d-none');
                 document.getElementById('error-msg').style.backgroundColor = '#aaffb3';
                 document.getElementById('error-msg').style.color = 'green';
                 document.getElementById('error-msg').textContent = data.message;
                 setTimeout(()=>{
-                    window.location.replace('http://localhost:3000/login');
+                    window.location.replace('http://localhost:4000/login');
                 }, 3000);
             }else{
                 document.getElementById('error-msg').classList.remove('d-none');
                 document.getElementById('error-msg').textContent = data.message;
             }
         }).catch(err => {
+            document.getElementById('error-msg').classList.remove('d-none');
+            document.getElementById('error-msg').textContent = err.message;
             console.log(err.message);
         });
     }

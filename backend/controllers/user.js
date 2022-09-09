@@ -2,9 +2,10 @@ const User = require("../models/user");
 const {response} = require("express");
 const {userRoles} = require("../utils/constant");
 const helper = require('../utils/helper');
+const createError = require("http-errors");
 
 
-exports.postDeleteUser = (req, res) => {
+exports.postDeleteUser = (req, res, next) => {
     if(typeof req.session.user === 'undefined'){
         res.redirect('/login');
         return;
@@ -14,11 +15,7 @@ exports.postDeleteUser = (req, res) => {
     });
     User.findByPk(req.params.id).then(user => {
         if(user == null){
-            res.status(404).render('404',{
-                title: 'Error',
-                isLoggedIn: true,
-                message: 'The User could not be deleted'
-            });
+            next(createError(404, 'The user with the ID does not exist'));
             return;
         }
         if((!userRole.canAccessOwner && user.user_role === 'Owner')
@@ -26,11 +23,7 @@ exports.postDeleteUser = (req, res) => {
             || (!userRole.canAccessTeacher && user.user_role === 'Teacher')
             || (!userRole.canAccessStudent && user.user_role === 'Student')
             || (req.session.user.user_role === 'Student' && req.session.user.id !== user.id)){
-            res.status(404).render('404',{
-                title: 'Error',
-                isLoggedIn: true,
-                message: 'You do not have the permission to delete this uer'
-            });
+            next(createError(401, 'You do not have the permission to delete this user'));
             return;
         }
         User.destroy({
@@ -41,26 +34,19 @@ exports.postDeleteUser = (req, res) => {
             res.redirect('/');
         })
     }).catch(err => {
-        res.status(500).render('500',{
-            title: 'Internal Server Error',
-            isLoggedIn: true,
-            message: err.message
-        });
+        next(createError(500, err.message));
     });
 }
 
-exports.getEditUser = (req, res) => {
+exports.getEditUser = (req, res, next) => {
     if(!helper.authenticate(req, res)){
         res.redirect('/login');
         return
     }
     User.findByPk(req.params.id).then(user => {
         if(user == null){
-            res.status(404).render('404',{
-                title: 'Page Not Found',
-                message: 'The user with the ID does not exist',
-                isLoggedIn: true
-            })
+            next(createError(404, 'The user with the ID does not exist'));
+            return;
         }
         const userRole = userRoles.find(role => {
             return req.session.user.user_role === role.name;
@@ -70,11 +56,10 @@ exports.getEditUser = (req, res) => {
             || (!userRole.canAccessTeacher && user.user_role === 'Teacher')
             || (!userRole.canAccessStudent && user.user_role === 'Student')
         || (req.session.user.user_role === 'Student' && req.session.user.id !== user.id)){
-            res.status(404).render('404',{
-                title: 'Page Not Found',
-                message: 'You are not authorized to access this page',
-                isLoggedIn: true
-            })
+            //let err = new Error('You are not authorized to access this page');
+            //err.statusCode = 401;
+            //throw err;
+            next(createError(401, 'You are not authorized to access this page'));
             return;
         }
         let accessibleRoles = [];
@@ -93,16 +78,12 @@ exports.getEditUser = (req, res) => {
             }),
         })
     }).catch(err => {
-            res.status(404).render('404',{
-                title: 'Page Not Found',
-                message: err.message,
-                isLoggedIn: true
-            })
+            next(createError(500, err.message));
         }
     );
 }
 
-exports.postEditUser = (req, res) => {
+exports.postEditUser = (req, res, next) => {
     if(typeof req.session.user === 'undefined'){
         res.redirect('/login');
         return;
@@ -112,12 +93,7 @@ exports.postEditUser = (req, res) => {
     });
     User.findByPk(req.body.user.id).then(user => {
         if(user == null){
-            res.status(404);
-            res.statusMessage = 'User not found';
-            res.json({
-                status: 404,
-                message: 'User not found'
-            });
+            next(createError(404,'User not found'));
             return;
         }
         if((!userRole.canAccessOwner && user.user_role === 'Owner')
@@ -152,6 +128,31 @@ exports.postEditUser = (req, res) => {
         res.statusMessage = err.message;
         res.json({
             status: 401,
+            message: err.message
+        });
+    });
+}
+exports.getUsers = (req, res) => {
+    /*if(typeof req.session.user === 'undefined'){
+        res.status(422);
+        res.statusMessage = 'You need to login';
+        res.json({
+            status: 42,
+            message: 'You need to login'
+        });
+        return;
+    }*/
+    User.findAll().then(users=>{
+        res.json({
+            status: 200,
+            massage: 'Users fetched successfully',
+            users: users
+        });
+    }).catch(err=>{
+        res.status(404);
+        res.statusMessage = err.message;
+        res.json({
+            status: 404,
             message: err.message
         });
     });
